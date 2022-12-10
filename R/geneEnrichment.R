@@ -87,6 +87,9 @@ geneGOEnricher <-
            label2 = '',
            isUnionCorGene = FALSE,
            databaseFile) {
+    
+    pkg.env$is_first_retreival = TRUE
+    
     if (missing(gene))
       message("Gene is missing?")
     
