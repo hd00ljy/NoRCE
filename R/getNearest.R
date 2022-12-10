@@ -192,7 +192,10 @@ assembly <- function(org_assembly = c("hg19",
   else{
     table_tmp <- types[index, 4]
     track_tmp <- gsub("CompV","V",table_tmp)
+    print(table_tmp)
+    print(track_tmp)
     qry_tmp <- ucscTableQuery(myses,track = track_tmp, table = table_tmp)
+    print(qry_tmp)
     data <- getTable(qry_tmp) # data <- getTable(ucscTableQuery(myses, track = types[index, 4]))
     data <- data[, as.double(types[index, 5:9])]
   }
