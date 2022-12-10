@@ -32,6 +32,10 @@ pkg.env$alternate = "two.sided" #c('greater', "two.sided", "less")
 pkg.env$pathwayType = 'kegg' #c('kegg', 'reactome','wiki','other'),
 pkg.env$isSymbol = FALSE
 
+
+pkg.env$is_first_retreival = TRUE
+pkg.env$table_current = data.frame()
+
 #' Get the required information for the given assembly
 #'
 #' @param org_assembly Genome assembly of interest for the analysis. Possible
@@ -190,13 +194,22 @@ assembly <- function(org_assembly = c("hg19",
     data <- data[, c(4, 5, 6, 7, 2)]
   }
   else{
-    table_tmp <- types[index, 4]
-    track_tmp <- gsub("CompV","V",table_tmp)
-    print(table_tmp)
-    print(track_tmp)
-    qry_tmp <- ucscTableQuery(myses,track = track_tmp, table = table_tmp)
-    print(qry_tmp)
-    data <- getTable(qry_tmp) #data <- getTable(qry_tmp) # data <- getTable(ucscTableQuery(myses, track = types[index, 4]))
+    if(pkg.env$is_first_retreival){
+      
+      table_tmp <- types[index, 4]
+      track_tmp <- gsub("CompV","V",table_tmp)
+      print(table_tmp)
+      print(track_tmp)
+      qry_tmp <- ucscTableQuery(myses,track = track_tmp, table = table_tmp)
+      print(qry_tmp)
+      data <- getTable(qry_tmp) #data <- getTable(qry_tmp) # data <- getTable(ucscTableQuery(myses, track = types[index, 4]))
+      
+      pkg.env$table_current = data
+      pkg.env$is_first_retreival = FALSE
+    }else{
+      data = pkg.env$table_current
+    }
+    
     data <- data[, as.double(types[index, 5:9])]
   }
   colnames(data) <- c('chr', 'strand', 'start', 'end', 'symbol')
