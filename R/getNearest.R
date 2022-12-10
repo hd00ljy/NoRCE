@@ -190,7 +190,10 @@ assembly <- function(org_assembly = c("hg19",
     data <- data[, c(4, 5, 6, 7, 2)]
   }
   else{
-    data <- getTable(myses, table = types[index, 4]) # data <- getTable(ucscTableQuery(myses, track = types[index, 4]))
+    table_tmp <- types[index, 4]
+    track_tmp <- gsub("CompV","V",table_tmp)
+    qry_tmp <- ucscTableQuery(myses,track = track_tmp, table = table_tmp)
+    data <- getTable(myses, table = table_tmp) # data <- getTable(ucscTableQuery(myses, track = types[index, 4]))
     data <- data[, as.double(types[index, 5:9])]
   }
   colnames(data) <- c('chr', 'strand', 'start', 'end', 'symbol')
