@@ -81,7 +81,7 @@ assembly <- function(org_assembly = c("hg19",
         "Hsapiens",
         "hg38",
         "hg38",
-        "wgEncodeGencodeV31",
+        "wgEncodeGencodeCompV38", #"wgEncodeGencodeV31",
         3,
         4,
         5,
@@ -190,7 +190,7 @@ assembly <- function(org_assembly = c("hg19",
     data <- data[, c(4, 5, 6, 7, 2)]
   }
   else{
-    data <- getTable(ucscTableQuery(myses, track = types[index, 4]))
+    data <- getTable(myses, table = types[index, 4]) # data <- getTable(ucscTableQuery(myses, track = types[index, 4]))
     data <- data[, as.double(types[index, 5:9])]
   }
   colnames(data) <- c('chr', 'strand', 'start', 'end', 'symbol')
