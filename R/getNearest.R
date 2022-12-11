@@ -645,6 +645,105 @@ getTADOverlap <-
     return(unique(as.data.frame(region$symbol)))
   }
 
+
+
+
+#' For given region of interest, overlapped genes in the TAD regions are
+#' found. Results can be filtered according to the available cell lines. - return overlap pairs
+#'
+#' @param bedfile Region of interest
+#' @param tad TAD genomic regions for the species. Predefined TAD regions or
+#'      any new TAD regions can be used for the analysis. TAD regions must be
+#'      formated as GRanges object. Predefined TAD regions are 'tad_hg19',
+#'      'tad_hg38', 'tad_mm10', 'tad_dmel' for hg19, hg38, mm9 and dm6
+#'      assembly, respectively.
+#' @param cellline Cell lines for TAD regions.
+#' @param org_assembly Genome assembly of interest for the analysis. Possible
+#'      assemblies are "mm10" for mouse, "dre10" for zebrafish, "rn6" for rat,
+#'      "dm6" for fruit fly, "ce11" for worm, "sc3" for yeast, "hg19" and
+#'      "hg38" for human
+#' @param near Boolean value presents whether cis-neighbourhood should be
+#'       considered in the analysis
+#' @param upstream Holds upstream distance from the transcription start
+#'     position
+#' @param downstream Holds downstream distance from the transcription end
+#'      position
+#'
+#' @return List of protein coding genes that falls into the TAD regions
+#'
+#' @examples
+#' \dontrun{
+#' regions<-system.file("extdata", "ncRegion.txt", package = "NoRCE")
+#' regionNC <- rtracklayer::import(regions, format = "BED")
+#'
+#' r<-getTADOverlap(bedfile = regionNC,
+#'                  tad = tad_hg19,
+#'                  org_assembly = 'hg19',
+#'                  cellline = 'HUVEC')
+#' }
+#' @export
+getTADOverlap_gene_relationship_filter <-
+  function(bedfile,
+           org_assembly = c("hg19",
+                            "hg38",
+                            "mm10",
+                            "dre10",
+                            "rn6",
+                            "dm6",
+                            "ce11",
+                            "sc3"),
+           tad = c(tad_hg19,
+                   tad_dmel,
+                   tad_hg38,
+                   tad_mm10),
+           near = FALSE,
+           upstream = 10000,
+           downstream = 10000,
+           cellline = 'all',
+           gene_match
+          ) {
+    if (missing(org_assembly)) {
+      message("Assembly is missing?")
+    }
+    
+    assembly(org_assembly)
+    
+    if (missing(bedfile)) {
+      message("Bed file is missing?")
+    }
+    
+    if (cellline != 'all') {
+      temp <- which(tad$celline == cellline)
+      tad <-  tad[temp,]
+    }
+    
+    if (near) {
+      
+      tad_input =  IRanges::findOverlaps(treg, bedfile) %>% as.data.frame %>% dplyr::transmute(TAD=queryHits,input_genes = bedfile[subjectHits,]$gene) %>% unique
+      tad_near = IRanges::findOverlaps(treg,pkg.env$ucsc ) %>% as.data.frame %>% dplyr::transmute(TAD=queryHits,near_genes=pkg.env$ucsc[queryHits,]$symbol) %>% unique
+      
+      tad_filter = gene_match %>% apply(1,function(x){
+        input_g = x[1]
+        near_g = x[2]
+        input_tad = tad_input %>% dplyr::filter(input_genes==input_g) %>% with(TAD) 
+        near_tad = tad_near %>% dplyr::filter(near_genes==near_g) %>% with(TAD) 
+        if( length(intersect(input_tad,near_tad)) ){
+          return(TRUE)
+        }else{
+          return(FALSE)
+        }
+      }) %>% unlist
+    }
+    else
+    {
+      tadRegion = IRanges::subsetByOverlaps(bedfile, tad)
+      region <- IRanges::subsetByOverlaps(pkg.env$ucsc, tadRegion)
+    }
+    
+    #return(unique(as.data.frame(region$symbol)))
+    return(gene_match[tad_filter,])
+  }
+
 #' Convert gene ids according to the gene type
 #'
 #' @param genetype Type of the input gene list. Possible values are "Entrez",
