@@ -331,6 +331,95 @@ getUCSC <-
     return(result)
   }
 
+
+
+#' Get nearest genes for the window of the upstream/downstream region. - return input gene - near gene pairs
+#'
+#' When downstream = 0 / upstream = 0, function converts bed formated regions
+#' to HUGO genes
+#'
+#'
+#' @param bedfile Bed formated input gene regions
+#' @param upstream Maximum upstream distance from the transcription start
+#'      region of the input gene
+#' @param downstream Maximum downstream distance from the transcription end
+#'      region of the input gene
+#' @param org_assembly genomee assembly of interest for the analysis. Possible
+#'      assemblies are "mm10" for mouse, "dre10" for zebrafish, "rn6" for rat,
+#'      "dm6" for fruit fly, "ce11" for worm, "sc3" for yeast, "hg19" and
+#'      "hg38" for human
+#'
+#'
+#' @return genes
+#'
+#' @import GenomicFeatures
+#' @importFrom GenomicRanges as.data.frame duplicated end findOverlaps
+#' @importFrom GenomicRanges intersect match merge order pintersect resize
+#' @importFrom GenomicRanges split start strand width
+#'
+#' @importFrom GenomicRanges GRanges
+#' @importFrom IRanges subsetByOverlaps
+#' @import zlibbioc
+#'
+#' @examples
+#'  \dontrun{
+#' regions<-system.file("extdata", "ncRegion.txt", package = "NoRCE")
+#' regionNC <- rtracklayer::import(regions, format = "BED")
+#'
+#' neighbour <- getUCSC(bedfile = regionNC,
+#'                      upstream = 1000,
+#'                      downstream = 1000,
+#'                      org_assembly = 'hg19') 
+#'                      }
+#'
+#'@export
+getUCSC_gene_relationship <-
+  function(bedfile,
+           upstream,
+           downstream,
+           org_assembly = c("hg19",
+                            "hg38",
+                            "mm10",
+                            "dre10",
+                            "rn6",
+                            "dm6",
+                            "ce11",
+                            "sc3")) {
+    
+    if (missing(bedfile)) {
+      message("Bed file is missing?")
+    }
+    if (missing(upstream)) {
+      message("Upstream information is missing?")
+    }
+    if (missing(downstream)) {
+      message("Downstream information is missing?")
+    }
+    if (missing(org_assembly)) {
+      message("genomee assembly version is missing.")
+    }
+    
+    assembly(org_assembly)
+    
+    big_islands <-
+      resize(bedfile, width = downstream + width(bedfile), fix = "end")
+    rt1 <-
+      IRanges::findOverlaps(pkg.env$ucsc, 
+                                BiocGenerics::unstrand(big_islands))
+    
+    big_islands <-
+      resize(bedfile, width = upstream + width(bedfile), fix = "start")
+    rt2 <-
+      IRanges::findOverlaps(pkg.env$ucsc, 
+                                BiocGenerics::unstrand(big_islands))
+    gene_match = data.frame(
+      input_genes = c(bedfile[rt1$subjectHits,]$gene,bedfile[rt2$subjectHits,]$gene) ,
+      near_genes = c(ucsc[rt1$queryHits,]$symbol,ucsc[rt2$queryHits,]$symbol)
+    ) %>% unique()
+    return(gene_match)
+  }
+
+
 #' Get only those neighbouring genes that fall within exon region
 #'
 #' @param bedfile Input bed formated file
