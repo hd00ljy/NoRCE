@@ -178,6 +178,17 @@ geneGOEnricher <-
       if (near)
         nearGene <-
           as.data.frame(intersect(unlist(nearGene), unlist(tadGene)))
+      
+        nearGene_relationship = getTADOverlap_gene_relationship_filter(
+            bedfile = geneLoc,
+            tad = TAD,
+            cellline = pkg.env$cellline,
+            org_assembly = org_assembly,
+            near = near,
+            upstream = pkg.env$upstream,
+            downstream = pkg.env$downstream,
+            gene_match = nearGene_relationship
+          )
       else
         nearGene <- tadGene
     }
@@ -259,7 +270,7 @@ geneGOEnricher <-
         )
       }
       
-      return(enrichedGene)
+      return(list(GO_result = enrichedGene,Input_Near_Gene_Pairs = nearGene_relationship) )
     }
   }
 
