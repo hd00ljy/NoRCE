@@ -142,6 +142,17 @@ geneGOEnricher <-
             )
         )
       )
+      
+      
+      if(pkg.env$searchRegion == 'all'){
+        nearGene_relationship =
+        getUCSC_gene_relationship(
+            bedfile = geneLoc,
+            upstream = pkg.env$upstream,
+            downstream = pkg.env$downstream,
+            org_assembly = org_assembly
+        )
+      }
     }
     else{
       nearGene <-
