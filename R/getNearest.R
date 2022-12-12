@@ -35,6 +35,8 @@ pkg.env$isSymbol = FALSE
 
 pkg.env$is_first_retreival = TRUE
 pkg.env$table_current = data.frame()
+pkg.env$org_assembly_prev = ""
+pkg.env$mart_tmp <- data.frame()
 
 #' Get the required information for the given assembly
 #'
@@ -194,7 +196,7 @@ assembly <- function(org_assembly = c("hg19",
     data <- data[, c(4, 5, 6, 7, 2)]
   }
   else{
-    if(pkg.env$is_first_retreival){
+    if(pkg.env$org_assembly_prev!=org_assembly){
       
       table_tmp <- types[index, 4]
       track_tmp <- gsub("CompV","V",table_tmp)
@@ -240,8 +242,13 @@ assembly <- function(org_assembly = c("hg19",
     )
   }
   else{
-    mart <-
+    if(pkg.env$org_assembly_prev!=org_assembly){
+      mart <-
       useEnsembl(biomart = "ensembl", dataset = types[index, 11])
+      pkg.env$mart_tmp <- mart
+    }else{
+      mart <- pkg.env$mart_tmp
+    }
   }
   pkg.env$mart <- mart
 }
