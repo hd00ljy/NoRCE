@@ -175,7 +175,7 @@ geneGOEnricher <-
           upstream = pkg.env$upstream,
           downstream = pkg.env$downstream
         )
-      if (near)
+      if (near) {
         nearGene <-
           as.data.frame(intersect(unlist(nearGene), unlist(tadGene)))
       
@@ -189,8 +189,9 @@ geneGOEnricher <-
             downstream = pkg.env$downstream,
             gene_match = nearGene_relationship
           )
-      else
+      }else{
         nearGene <- tadGene
+       }
     }
     
     if (express) {
