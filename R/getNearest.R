@@ -251,6 +251,8 @@ assembly <- function(org_assembly = c("hg19",
     }
   }
   pkg.env$mart <- mart
+  
+  pkg.env$org_assembly_prev = org_assembly
 }
 
 #' Get nearest genes for the window of the upstream/downstream region.
