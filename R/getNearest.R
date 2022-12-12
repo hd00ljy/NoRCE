@@ -728,8 +728,8 @@ getTADOverlap_gene_relationship_filter <-
     
     if (near) {
       
-      tad_input =  IRanges::findOverlaps(treg, bedfile) %>% as.data.frame %>% dplyr::transmute(TAD=queryHits,input_genes = bedfile[subjectHits,]$gene) %>% unique
-      tad_near = IRanges::findOverlaps(treg,pkg.env$ucsc ) %>% as.data.frame %>% dplyr::transmute(TAD=queryHits,near_genes=pkg.env$ucsc[queryHits,]$symbol) %>% unique
+      tad_input =  IRanges::findOverlaps(tad, bedfile) %>% as.data.frame %>% dplyr::transmute(TAD=queryHits,input_genes = bedfile[subjectHits,]$gene) %>% unique
+      tad_near = IRanges::findOverlaps(tad,pkg.env$ucsc ) %>% as.data.frame %>% dplyr::transmute(TAD=queryHits,near_genes=pkg.env$ucsc[queryHits,]$symbol) %>% unique
       
       tad_filter = gene_match %>% apply(1,function(x){
         input_g = x[1]
