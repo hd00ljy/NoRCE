@@ -423,7 +423,7 @@ getUCSC_gene_relationship <-
                                 BiocGenerics::unstrand(big_islands)) %>% as.data.frame
     gene_match = data.frame(
       input_genes = c(bedfile[rt1$subjectHits,]$gene,bedfile[rt2$subjectHits,]$gene) ,
-      near_genes = c(ucsc[rt1$queryHits,]$symbol,ucsc[rt2$queryHits,]$symbol)
+      near_genes = c(pkg.env$ucsc[rt1$queryHits,]$symbol,pkg.env$ucsc[rt2$queryHits,]$symbol)
     ) %>% unique()
     return(gene_match)
   }
